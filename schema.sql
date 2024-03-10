@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS "Users" (
     "username" TEXT NOT NULL UNIQUE,
     "email" TEXT NOT NULL UNIQUE,
     "password" TEXT NOT NULL,
-    "phone_number" TEXT UNIQUE CHECK(length("phone_number") = 10),
+    "phone_number" TEXT UNIQUE CHECK(length("phone_number") = 10 AND "phone_number" LIKE '+91__________'),
     "premium" INTEGER DEFAULT 0 CHECK("premium" IN (0, 1)),
     "num_following_artists" INTEGER DEFAULT 0 CHECK("num_following_artists" >= 0),
     "num_following_users" INTEGER DEFAULT 0 CHECK("num_following_users" >= 0),
@@ -234,7 +234,3 @@ BEGIN
     WHERE "artist_id" = OLD."artist_id";
 END;
 
--- Trigger - update num_following_users and num_following_artists when a new user is followed by another user.
-
-
--- Trigger - update num_following_users and num_following_artists when a user is reduced followed by another user.
