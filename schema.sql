@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS "Users" (
     "user_id" INTEGER PRIMARY KEY,
     "username" TEXT NOT NULL UNIQUE,
     "email" TEXT NOT NULL UNIQUE,
-    "password" TEXT NOT NULL,
+    "password" TEXT NOT NULL CHECK(length("password") >= 8),
     "phone_number" TEXT UNIQUE CHECK(length("phone_number") = 10 AND "phone_number" LIKE '+91__________'),
     "premium" INTEGER DEFAULT 0 CHECK("premium" IN (0, 1)),
     "num_following_artists" INTEGER DEFAULT 0 CHECK("num_following_artists" >= 0),
