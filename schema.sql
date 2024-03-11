@@ -1,3 +1,4 @@
+-- Tables
 CREATE TABLE IF NOT EXISTS "Songs" (
     "song_id" INTEGER PRIMARY KEY,
     "title" TEXT NOT NULL,
@@ -41,13 +42,29 @@ CREATE TABLE IF NOT EXISTS "Users" (
     "username" TEXT NOT NULL UNIQUE,
     "email" TEXT NOT NULL UNIQUE,
     "password" TEXT NOT NULL CHECK(length("password") >= 8),
-    "phone_number" TEXT UNIQUE CHECK(length("phone_number") = 10 AND "phone_number" LIKE '+91__________'),
+    "phone_number" TEXT UNIQUE CHECK(length("phone_number") = 13 AND "phone_number" LIKE '+91__________'),
     "premium" INTEGER DEFAULT 0 CHECK("premium" IN (0, 1)),
     "num_following_artists" INTEGER DEFAULT 0 CHECK("num_following_artists" >= 0),
     "num_following_users" INTEGER DEFAULT 0 CHECK("num_following_users" >= 0),
     "num_followers" INTEGER DEFAULT 0 CHECK("num_followers" >= 0),
     "num_public_playlist" INTEGER DEFAULT 0 CHECK("num_public_playlist" >= 0),
     CONSTRAINT "email_valid" CHECK ("email" LIKE '%_@__%.__%')
+);
+
+CREATE TABLE IF NOT EXISTS "Following_User" (
+    "follower_id" INTEGER,
+    "following_id" INTEGER,
+    FOREIGN KEY ("follower_id") REFERENCES "Users"("user_id"),
+    FOREIGN KEY ("following_id") REFERENCES "Users"("user_id"),
+    PRIMARY KEY ("follower_id", "following_id")
+);
+
+CREATE TABLE IF NOT EXISTS "Following_Artist" (
+    "follower_id" INTEGER,
+    "following_id" INTEGER,
+    FOREIGN KEY ("follower_id") REFERENCES "Users"("user_id"),
+    FOREIGN KEY ("following_id") REFERENCES "Artists"("artist_id"),
+    PRIMARY KEY ("follower_id", "following_id")
 );
 
 CREATE TABLE IF NOT EXISTS "Playlists" (
@@ -96,6 +113,7 @@ CREATE TABLE IF NOT EXISTS "Episodes" (
     FOREIGN KEY ("podcast_id") REFERENCES "Podcasts"("podcast_id") ON DELETE CASCADE
 );
 
+-- Triggers
 -- Trigger - update the Albums table when a song is added with an album name
 CREATE TRIGGER IF NOT EXISTS "update_album_on_song_insert" 
 AFTER INSERT ON "Songs"
@@ -234,9 +252,104 @@ BEGIN
     WHERE "artist_id" = OLD."artist_id";
 END;
 
+-- Trigger to update num_following_users and num_followers when a new user is followed
+CREATE TRIGGER IF NOT EXISTS "update_following_users_insert"
+AFTER INSERT ON "Following_User"
+BEGIN
+    -- Update num_following_users for the follower
+    UPDATE "Users"
+    SET "num_following_users" = "num_following_users" + 1
+    WHERE "user_id" = NEW."follower_id";
+
+    -- Update num_followers for the user being followed
+    UPDATE "Users"
+    SET "num_followers" = "num_followers" + 1
+    WHERE "user_id" = NEW."following_id";
+END;
+
+-- Trigger to update num_following_users and num_followers when a user is unfollowed
+CREATE TRIGGER IF NOT EXISTS "update_following_users_delete"
+AFTER DELETE ON "Following_User"
+BEGIN
+    -- Update num_following_users for the follower
+    UPDATE "Users"
+    SET "num_following_users" = "num_following_users" - 1
+    WHERE "user_id" = OLD."follower_id";
+
+    -- Update num_followers for the user being unfollowed
+    UPDATE "Users"
+    SET "num_followers" = "num_followers" - 1
+    WHERE "user_id" = OLD."following_id";
+END;
+
+
+-- Trigger to update num_following_artists in Users and num_followers in Artists when a new artist is followed
+CREATE TRIGGER IF NOT EXISTS "update_following_artists_insert"
+AFTER INSERT ON "Following_Artist"
+BEGIN
+    -- Update num_following_artists for the follower
+    UPDATE "Users"
+    SET "num_following_artists" = "num_following_artists" + 1
+    WHERE "user_id" = NEW."follower_id";
+
+    -- Update num_followers for the artist being followed
+    UPDATE "Artists"
+    SET "num_followers" = "num_followers" + 1
+    WHERE "artist_id" = NEW."following_id";
+END;
+
+-- Trigger to update num_following_artists in Users and num_followers in Artists when an artist is unfollowed
+CREATE TRIGGER IF NOT EXISTS "update_following_artists_delete"
+AFTER DELETE ON "Following_Artist"
+BEGIN
+    -- Update num_following_artists for the follower
+    UPDATE "Users"
+    SET "num_following_artists" = "num_following_artists" - 1
+    WHERE "user_id" = OLD."follower_id";
+
+    -- Update num_followers for the artist being unfollowed
+    UPDATE "Artists"
+    SET "num_followers" = "num_followers" - 1
+    WHERE "artist_id" = OLD."following_id";
+END;
+
+--  INDEXES
 CREATE INDEX IF NOT EXISTS "idx_podcasts_type" ON "Podcasts" ("type");
 CREATE INDEX IF NOT EXISTS "idx_songs_genre" ON "Songs" ("genre");
-CREATE INDEX IF NOT EXISTS "idx_albums_release" ON "Albums" ("release_year");
+CREATE INDEX IF NOT EXISTS "idx_albums_release_year" ON "Albums" ("release_year");
 CREATE INDEX IF NOT EXISTS "idx_playlists_user_id" ON "Playlists" ("user_id");
 CREATE INDEX IF NOT EXISTS "idx_podcasts_publisher" ON "Podcasts" ("publisher");
-CREATE INDEX IF NOT EXISTS "idx_episodes_release" ON "Episodes" ("release_year");
+CREATE INDEX IF NOT EXISTS "idx_episodes_release_year" ON "Episodes" ("release_year");
+
+-- Views
+-- View - to list the top songs for each genre based on the number of times heard.
+CREATE VIEW "Top_Songs_By_Genre" AS
+SELECT s."title" AS "song_title", s."genre", s."times_heard"
+FROM  "Songs" s
+ORDER BY s."genre", s."times_heard" DESC;
+
+-- View - to display all playlists created by a user and the number of songs and total duration.
+CREATE VIEW User_Playlist AS
+SELECT p."name" AS "playlist_name", COUNT(ps."song_id") AS "num_of_songs",
+    SUM(s."duration_hours" * 3600 + s."duration_minutes" * 60 + s."duration_seconds") AS "total_duration_seconds"
+FROM "Playlists" p
+JOIN "PlaylistSongs" ps ON p."playlist_id" = ps."playlist_id"
+JOIN "Songs" s ON ps."song_id" = s."song_id"
+GROUP BY p."playlist_id";
+
+-- View - to show all songs and episodes marked as explicit along with their details.
+CREATE VIEW "Explicit_Content" AS
+SELECT 'Song' AS "content_type", s."song_id", s."title", s."genre", s."release_year", s."content"
+FROM "Songs" s
+WHERE s."content" = 'Explicit'
+UNION ALL
+SELECT 'Episode' AS "content_type", e."episode_id", e."name", p."type" AS "genre", e."release_year", e."explicit"
+FROM "Episodes" e
+JOIN "Podcasts" p ON e."podcast_id" = p."podcast_id"
+WHERE e."explicit" = 'Explicit';
+
+-- View - to rank artists based on the number of monthly listeners and followers.
+CREATE VIEW "Top_Artists" AS
+SELECT a."artist_id", a."name" AS "artist_name", a."monthly_listeners", a."num_followers"
+FROM "Artists" a
+ORDER BY a."monthly_listeners" DESC, a."num_followers" DESC;
