@@ -234,9 +234,9 @@ BEGIN
     WHERE "artist_id" = OLD."artist_id";
 END;
 
-CREATE INDEX IF NOT EXISTS idx_podcasts_type ON "Podcasts" ("type");
-CREATE INDEX IF NOT EXISTS idx_songs_genre ON "Songs" ("genre");
-CREATE INDEX IF NOT EXISTS idx_albums_release_year ON "Albums" ("release_year");
-CREATE INDEX IF NOT EXISTS idx_playlists_user_id ON "Playlists" ("user_id");
-CREATE INDEX IF NOT EXISTS idx_podcasts_publisher ON "Podcasts" ("publisher");
-CREATE INDEX IF NOT EXISTS idx_episodes_release_year ON "Episodes" ("release_year");
+CREATE INDEX IF NOT EXISTS "idx_podcasts_type" ON "Podcasts" ("type");
+CREATE INDEX IF NOT EXISTS "idx_songs_genre" ON "Songs" ("genre");
+CREATE INDEX IF NOT EXISTS "idx_albums_release" ON "Albums" ("release_year");
+CREATE INDEX IF NOT EXISTS "idx_playlists_user_id" ON "Playlists" ("user_id");
+CREATE INDEX IF NOT EXISTS "idx_podcasts_publisher" ON "Podcasts" ("publisher");
+CREATE INDEX IF NOT EXISTS "idx_episodes_release" ON "Episodes" ("release_year");
