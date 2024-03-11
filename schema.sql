@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS "Songs" (
     "content" TEXT NOT NULL CHECK("content" IN ('Explicit', 'Not Explicit')),
     "times_heard" INTEGER DEFAULT 0 CHECK("times_heard" >= 0),
     FOREIGN KEY ("album_id") REFERENCES "Albums"("album_id") ON DELETE CASCADE,
-    FOREIGN KEY ("artist_id") REFERENCES "Artists"("artist_id"),
+    FOREIGN KEY ("artist_id") REFERENCES "Artists"("artist_id") ON DELETE CASCADE,
     UNIQUE("song_id", "artist_id", "album_id")
 );
 
@@ -28,7 +28,6 @@ CREATE TABLE IF NOT EXISTS "Albums" (
     "album_id" INTEGER PRIMARY KEY,
     "album_name" TEXT NOT NULL,
     "artist_id" INTEGER,
-    "num_albums" INTEGER NOT NULL DEFAULT 0 CHECK("num_albums" >= 0),
     "release_year" INTEGER NOT NULL CHECK("release_year" >= 1900),
     "no_of_songs" INTEGER NOT NULL CHECK("no_of_songs" >= 0),
     "duration_hours" INTEGER NOT NULL CHECK("duration_hours" >= 0),
@@ -54,16 +53,16 @@ CREATE TABLE IF NOT EXISTS "Users" (
 CREATE TABLE IF NOT EXISTS "Following_User" (
     "follower_id" INTEGER,
     "following_id" INTEGER,
-    FOREIGN KEY ("follower_id") REFERENCES "Users"("user_id"),
-    FOREIGN KEY ("following_id") REFERENCES "Users"("user_id"),
+    FOREIGN KEY ("follower_id") REFERENCES "Users"("user_id") ON DELETE CASCADE,
+    FOREIGN KEY ("following_id") REFERENCES "Users"("user_id") ON DELETE CASCADE,
     PRIMARY KEY ("follower_id", "following_id")
 );
 
 CREATE TABLE IF NOT EXISTS "Following_Artist" (
     "follower_id" INTEGER,
     "following_id" INTEGER,
-    FOREIGN KEY ("follower_id") REFERENCES "Users"("user_id"),
-    FOREIGN KEY ("following_id") REFERENCES "Artists"("artist_id"),
+    FOREIGN KEY ("follower_id") REFERENCES "Users"("user_id") ON DELETE CASCADE,
+    FOREIGN KEY ("following_id") REFERENCES "Artists"("artist_id") ON DELETE CASCADE,
     PRIMARY KEY ("follower_id", "following_id")
 );
 
@@ -77,7 +76,7 @@ CREATE TABLE IF NOT EXISTS "Playlists" (
     "duration_minutes" INTEGER NOT NULL CHECK("duration_minutes" >= 0 AND "duration_minutes" < 60),
     "duration_seconds" INTEGER NOT NULL CHECK("duration_seconds" >= 0 AND "duration_seconds" < 60),
     "is_public" INTEGER DEFAULT 0 CHECK("is_public" IN (0, 1)),
-    FOREIGN KEY ("user_id") REFERENCES "Users"("user_id")
+    FOREIGN KEY ("user_id") REFERENCES "Users"("user_id") ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS "PlaylistSongs" (
@@ -86,10 +85,9 @@ CREATE TABLE IF NOT EXISTS "PlaylistSongs" (
     "playlist_id" INTEGER NOT NULL,
     "song_id" INTEGER NOT NULL,
     "date_added" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY ("playlist_id") REFERENCES "Playlists"("playlist_id"),
+    FOREIGN KEY ("playlist_id") REFERENCES "Playlists"("playlist_id") ON DELETE CASCADE,
     FOREIGN KEY ("song_id") REFERENCES "Songs"("song_id") ON DELETE CASCADE,
-    FOREIGN KEY ("user_id") REFERENCES "Users"("user_id"),
-    CONSTRAINT "playlist_song_id" CHECK ("song_id" IN (SELECT "song_id" FROM "Songs"))
+    FOREIGN KEY ("user_id") REFERENCES "Users"("user_id") ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS "Podcasts" (
@@ -112,144 +110,78 @@ CREATE TABLE IF NOT EXISTS "Episodes" (
     "podcast_id" INTEGER NOT NULL,
     FOREIGN KEY ("podcast_id") REFERENCES "Podcasts"("podcast_id") ON DELETE CASCADE
 );
-
 -- Triggers
--- Trigger - update the Albums table when a song is added with an album name
-CREATE TRIGGER IF NOT EXISTS "update_album_on_song_insert" 
-AFTER INSERT ON "Songs"
-BEGIN
-    IF NEW."album_id" IS NOT NULL THEN
-        DECLARE album_exists INTEGER;
-        SELECT COUNT(*) INTO album_exists FROM "Albums" WHERE "album_id" = NEW."album_id";
-        IF album_exists > 0 THEN
-            UPDATE "Albums"
-            SET 
-                "num_songs" = "num_songs" + 1,
-                "duration_hours" = "duration_hours" + NEW."duration_hours",
-                "duration_minutes" = "duration_minutes" + NEW."duration_minutes",
-                "duration_seconds" = "duration_seconds" + NEW."duration_seconds"
-            WHERE "album_id" = NEW."album_id";
-        ELSE
-            INSERT INTO "Albums" ("album_name", "artist_id", "release_year", "num_songs", "duration_hours", "duration_minutes", "duration_seconds")
-            VALUES (NEW."album", NEW."artist_id", NEW."release_year", 1, NEW."duration_hours", NEW."duration_minutes", NEW."duration_seconds");
-        END IF;
-    END IF;
-END;
-
 -- Trigger - update the playlist table when a song is added to playlist_songs
-CREATE TRIGGER IF NOT EXISTS"update_playlist_on_playlist_song_insert"
+CREATE TRIGGER IF NOT EXISTS "update_playlist_on_playlist_song_insert"
 AFTER INSERT ON "PlaylistSongs"
 BEGIN
     UPDATE "Playlists"
-    SET 
-        "num_of_songs" = (
-            SELECT COUNT(*) FROM "PlaylistSongs" 
-            WHERE "playlist_id" = NEW."playlist_id"),
-        "duration_hours" = (
-            SELECT SUM("duration_hours") FROM "Songs" 
-            INNER JOIN "PlaylistSongs" ON "Songs"."song_id" = "PlaylistSongs"."song_id" 
-            WHERE "PlaylistSongs"."playlist_id" = NEW."playlist_id"),
-        "duration_minutes" = (
-            SELECT SUM("duration_minutes") FROM "Songs" 
-            INNER JOIN "PlaylistSongs" ON "Songs"."song_id" = "PlaylistSongs"."song_id" 
-            WHERE "PlaylistSongs"."playlist_id" = NEW."playlist_id"),
+    SET
+        "num_of_songs" = "num_of_songs" + 1,
         "duration_seconds" = (
-            SELECT SUM("duration_seconds") FROM "Songs" 
-            INNER JOIN "PlaylistSongs" ON "Songs"."song_id" = "PlaylistSongs"."song_id" 
-            WHERE "PlaylistSongs"."playlist_id" = NEW."playlist_id")
+            SELECT SUM("duration_hours") * 3600 + SUM("duration_minutes") * 60 + SUM("duration_seconds")
+            FROM "Songs"
+            INNER JOIN "PlaylistSongs" ON "Songs"."song_id" = "PlaylistSongs"."song_id"
+            WHERE "PlaylistSongs"."playlist_id" = NEW."playlist_id"),
+        "duration_hours" = "duration_seconds" / 3600,
+        "duration_minutes" = ("duration_seconds" % 3600) / 60,
+        "duration_seconds" = "duration_seconds" % 60
     WHERE "playlist_id" = NEW."playlist_id";
 END;
 
 -- Trigger - update the Podcasts table when an episode is added to Episodes
-CREATE TRIGGER IF NOT EXISTS"update_podcast_on_episode_insert"
+CREATE TRIGGER IF NOT EXISTS "update_podcast_on_episode_insert"
 AFTER INSERT ON "Episodes"
 BEGIN
     UPDATE "Podcasts"
-    SET 
-        "num_of_episodes" = (SELECT COUNT(*) FROM "Episodes" WHERE "podcast_id" = NEW."podcast_id"),
+    SET
+        "num_of_episodes" = "num_of_episodes" + 1
     WHERE "podcast_id" = NEW."podcast_id";
 END;
 
 -- Trigger - update the Albums table when a song is deleted from the Songs table
-CREATE TRIGGER IF NOT EXISTS"update_album_on_song_delete"
+CREATE TRIGGER IF NOT EXISTS "update_album_on_song_delete"
 AFTER DELETE ON "Songs"
 BEGIN
     UPDATE "Albums"
-    SET 
-        "no_of_songs" = (
-            SELECT COUNT(*) FROM "Songs" 
-            WHERE "album_id" = OLD."album_id"),
-        "duration_hours" = (
-            SELECT SUM("duration_hours") FROM "Songs" 
-            WHERE "album_id" = OLD."album_id"),
-        "duration_minutes" = (
-            SELECT SUM("duration_minutes") FROM "Songs" 
-            WHERE "album_id" = OLD."album_id"),
+    SET
+        "no_of_songs" = "no_of_songs" - 1,
         "duration_seconds" = (
-            SELECT SUM("duration_seconds") FROM "Songs" 
-            WHERE "album_id" = OLD."album_id")
+            SELECT SUM("duration_hours") * 3600 + SUM("duration_minutes") * 60 + SUM("duration_seconds")
+            FROM "Songs"
+            WHERE "album_id" = OLD."album_id"),
+        "duration_hours" = "duration_seconds" / 3600,
+        "duration_minutes" = ("duration_seconds" % 3600) / 60,
+        "duration_seconds" = "duration_seconds" % 60
     WHERE "album_id" = OLD."album_id";
 END;
 
--- Trigger - update the Playlists table when a song is deleted from the Songs table:
-CREATE TRIGGER IF NOT EXISTS"update_playlist_on_song_delete"
-AFTER DELETE ON "Songs"
+-- Trigger - update the Playlists table when a song is deleted from the Playlist Songs table
+CREATE TRIGGER IF NOT EXISTS "update_playlist_on_playlist_song_delete"
+AFTER DELETE ON "PlaylistSongs"
 BEGIN
-    DELETE FROM "PlaylistSongs" WHERE "song_id" = OLD."song_id";
     UPDATE "Playlists"
-    SET 
-        "num_of_songs" = (
-            SELECT COUNT(*) 
-            FROM "PlaylistSongs" 
-            WHERE "playlist_id" = OLD."playlist_id"),
-        "duration_hours" = (
-            SELECT SUM("duration_hours") 
-            FROM "Songs" 
-            INNER JOIN "PlaylistSongs" ON "Songs"."song_id" = "PlaylistSongs"."song_id" 
-            WHERE "PlaylistSongs"."playlist_id" = OLD."playlist_id"),
-        "duration_minutes" = (
-            SELECT SUM("duration_minutes") 
-            FROM "Songs" 
-            INNER JOIN "PlaylistSongs" ON "Songs"."song_id" = "PlaylistSongs"."song_id" 
-            WHERE "PlaylistSongs"."playlist_id" = OLD."playlist_id"),
+    SET
+        "num_of_songs" = "num_of_songs" - 1,
         "duration_seconds" = (
-            SELECT SUM("duration_seconds") 
-            FROM "Songs" 
-            INNER JOIN "PlaylistSongs" ON "Songs"."song_id" = "PlaylistSongs"."song_id" 
-            WHERE "PlaylistSongs"."playlist_id" = OLD."playlist_id")
+            SELECT SUM("duration_hours") * 3600 + SUM("duration_minutes") * 60 + SUM("duration_seconds")
+            FROM "Songs"
+            INNER JOIN "PlaylistSongs" ON "Songs"."song_id" = "PlaylistSongs"."song_id"
+            WHERE "PlaylistSongs"."playlist_id" = OLD."playlist_id"),
+        "duration_hours" = "duration_seconds" / 3600,
+        "duration_minutes" = ("duration_seconds" % 3600) / 60,
+        "duration_seconds" = "duration_seconds" % 60
     WHERE "playlist_id" = OLD."playlist_id";
 END;
 
 -- Trigger - update the Podcasts table when an episode is deleted from the Episodes table
-CREATE TRIGGER IF NOT EXISTS"update_podcast_on_episode_delete"
+CREATE TRIGGER IF NOT EXISTS "update_podcast_on_episode_delete"
 AFTER DELETE ON "Episodes"
 BEGIN
     UPDATE "Podcasts"
-    SET 
-        "num_of_episodes" = (
-            SELECT COUNT(*) FROM "Episodes" 
-            WHERE "podcast_id" = OLD."podcast_id")
+    SET
+        "num_of_episodes" = "num_of_episodes" - 1
     WHERE "podcast_id" = OLD."podcast_id";
-END;
-
--- Trigger - update Artists table if a new album name is added in albums for the same artist id
-CREATE TRIGGER IF NOT EXISTS "update_artist_num_albums_insert"
-AFTER INSERT ON "Albums"
-FOR EACH ROW
-BEGIN
-    UPDATE "Artists"
-    SET "num_albums" = "num_albums" + 1
-    WHERE "artist_id" = NEW."artist_id";
-END;
-
--- Trigger - update the Artists table if an album is deleted in albums for the same artist id 
-CREATE TRIGGER IF NOT EXISTS "update_artist_num_albums_delete"
-AFTER DELETE ON "Albums"
-FOR EACH ROW
-BEGIN
-    UPDATE "Artists"
-    SET "num_albums" = "num_albums" - 1
-    WHERE "artist_id" = OLD."artist_id";
 END;
 
 -- Trigger to update num_following_users and num_followers when a new user is followed
@@ -281,7 +213,6 @@ BEGIN
     SET "num_followers" = "num_followers" - 1
     WHERE "user_id" = OLD."following_id";
 END;
-
 
 -- Trigger to update num_following_artists in Users and num_followers in Artists when a new artist is followed
 CREATE TRIGGER IF NOT EXISTS "update_following_artists_insert"
