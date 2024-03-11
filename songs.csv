@@ -1,0 +1,21 @@
+song_id,title,duration_hours,duration_minutes,duration_seconds,artist_id,album_id,genre,release_year,content,times_heard
+1,Song 1,2,53,18,1,3,Pop,2012,Explicit,1621
+2,Song 2,0,26,37,1,3,Electronic,1989,Not Explicit,2692
+3,Song 3,2,4,50,2,2,Electronic,1995,Not Explicit,1138
+4,Song 4,2,48,7,2,1,Hip-Hop,1985,Not Explicit,9281
+5,Song 5,2,53,2,1,1,Country,2017,Explicit,2689
+6,Song 6,1,5,42,2,1,Jazz,2010,Not Explicit,1301
+7,Song 7,1,32,18,2,3,Electronic,1981,Not Explicit,2426
+8,Song 8,1,47,58,2,2,Pop,1987,Not Explicit,5550
+9,Song 9,1,22,8,2,2,Jazz,1988,Not Explicit,4781
+10,Song 10,1,59,34,1,2,Classical,1994,Not Explicit,5380
+11,Song 11,1,26,15,3,3,Hip-Hop,1982,Not Explicit,7785
+12,Song 12,2,19,53,3,3,Pop,2001,Not Explicit,8159
+13,Song 13,0,5,42,2,1,Hip-Hop,1984,Explicit,5611
+14,Song 14,0,58,49,3,3,Classical,1992,Not Explicit,1144
+15,Song 15,2,55,12,1,3,Pop,2000,Not Explicit,7876
+16,Song 16,0,19,14,3,3,Rock,2018,Explicit,9051
+17,Song 17,2,35,38,2,2,Jazz,1985,Explicit,7004
+18,Song 18,2,25,21,2,3,Country,1988,Not Explicit,3836
+19,Song 19,2,54,50,1,1,Electronic,1983,Not Explicit,1489
+20,Song 20,1,31,2,2,3,Hip-Hop,2017,Explicit,4100
