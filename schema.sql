@@ -161,7 +161,7 @@ BEGIN
 END;
 
 -- Trigger - update the Podcasts table when an episode is added to Episodes
-CREATE TRIGGER IS NOT EXISTS"update_podcast_on_episode_insert"
+CREATE TRIGGER IF NOT EXISTS"update_podcast_on_episode_insert"
 AFTER INSERT ON "Episodes"
 BEGIN
     UPDATE "Podcasts"
