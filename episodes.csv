@@ -1,0 +1,41 @@
+episode_id,description,name,duration,explicit,release_year,podcast_id
+1,Description for Episode1,Episode1,43,Explicit,2009,8
+2,Description for Episode2,Episode2,116,Not Explicit,2020,3
+3,Description for Episode3,Episode3,77,Explicit,2007,20
+4,Description for Episode4,Episode4,73,Explicit,2005,3
+5,Description for Episode5,Episode5,119,Not Explicit,2011,20
+6,Description for Episode6,Episode6,6,Explicit,2017,1
+7,Description for Episode7,Episode7,6,Not Explicit,2021,2
+8,Description for Episode8,Episode8,77,Not Explicit,2016,18
+9,Description for Episode9,Episode9,105,Not Explicit,2023,15
+10,Description for Episode10,Episode10,3,Not Explicit,2022,18
+11,Description for Episode11,Episode11,90,Not Explicit,2013,12
+12,Description for Episode12,Episode12,39,Explicit,2021,7
+13,Description for Episode13,Episode13,57,Explicit,2010,19
+14,Description for Episode14,Episode14,115,Not Explicit,2020,16
+15,Description for Episode15,Episode15,52,Explicit,2018,17
+16,Description for Episode16,Episode16,16,Not Explicit,2020,16
+17,Description for Episode17,Episode17,79,Not Explicit,2023,4
+18,Description for Episode18,Episode18,118,Not Explicit,2010,5
+19,Description for Episode19,Episode19,20,Explicit,2008,11
+20,Description for Episode20,Episode20,80,Explicit,2021,19
+21,Description for Episode21,Episode21,49,Not Explicit,2022,8
+22,Description for Episode22,Episode22,25,Not Explicit,2005,7
+23,Description for Episode23,Episode23,88,Explicit,2019,1
+24,Description for Episode24,Episode24,73,Not Explicit,2015,12
+25,Description for Episode25,Episode25,26,Not Explicit,2002,18
+26,Description for Episode26,Episode26,110,Explicit,2001,14
+27,Description for Episode27,Episode27,117,Not Explicit,2016,8
+28,Description for Episode28,Episode28,18,Explicit,2012,19
+29,Description for Episode29,Episode29,39,Explicit,2022,20
+30,Description for Episode30,Episode30,14,Explicit,2001,9
+31,Description for Episode31,Episode31,27,Explicit,2014,15
+32,Description for Episode32,Episode32,18,Explicit,2020,16
+33,Description for Episode33,Episode33,66,Explicit,2021,18
+34,Description for Episode34,Episode34,89,Not Explicit,2009,14
+35,Description for Episode35,Episode35,47,Explicit,2002,8
+36,Description for Episode36,Episode36,72,Explicit,2009,4
+37,Description for Episode37,Episode37,64,Explicit,2000,8
+38,Description for Episode38,Episode38,10,Explicit,2000,7
+39,Description for Episode39,Episode39,19,Explicit,2004,4
+40,Description for Episode40,Episode40,43,Not Explicit,2004,20

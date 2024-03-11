@@ -1,0 +1,21 @@
+podcast_id,name,publisher,num_of_episodes,rating,about,type
+1,Podcast1,Publisher1,14,4.7,About Podcast1,lifestyle&health
+2,Podcast2,Publisher2,10,4.8,About Podcast2,true_crime
+3,Podcast3,Publisher3,14,3.2,About Podcast3,business&technology
+4,Podcast4,Publisher4,1,2.8,About Podcast4,sports&recreation
+5,Podcast5,Publisher5,14,2.5,About Podcast5,lifestyle&health
+6,Podcast6,Publisher6,17,3.6,About Podcast6,games
+7,Podcast7,Publisher7,14,1.1,About Podcast7,arts&entertainment
+8,Podcast8,Publisher8,3,3.1,About Podcast8,sports&recreation
+9,Podcast9,Publisher9,16,3.5,About Podcast9,games
+10,Podcast10,Publisher10,19,2.6,About Podcast10,arts&entertainment
+11,Podcast11,Publisher11,9,1.2,About Podcast11,news&politics
+12,Podcast12,Publisher12,5,3.1,About Podcast12,lifestyle&health
+13,Podcast13,Publisher13,7,1.5,About Podcast13,true_crime
+14,Podcast14,Publisher14,13,2.0,About Podcast14,lifestyle&health
+15,Podcast15,Publisher15,19,1.2,About Podcast15,true_crime
+16,Podcast16,Publisher16,2,2.2,About Podcast16,arts&entertainment
+17,Podcast17,Publisher17,13,2.8,About Podcast17,sports&recreation
+18,Podcast18,Publisher18,12,1.5,About Podcast18,lifestyle&health
+19,Podcast19,Publisher19,8,3.1,About Podcast19,sports&recreation
+20,Podcast20,Publisher20,15,1.2,About Podcast20,true_crime
