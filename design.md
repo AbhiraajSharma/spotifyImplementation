@@ -17,7 +17,7 @@ This database will support:
 - Associating songs with albums and artists
 - Users following artists and other users, and making playlists
 - Creating podcasts with a list of episodes
-- Adding songs to playlists and tracking user listening activity
+- Adding songs to playlists
 
 ## Representation
 
