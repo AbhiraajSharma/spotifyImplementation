@@ -154,7 +154,14 @@ The database includes the following entities:
 
 ## Optimizations
 
-Indexes may be created on commonly queried columns such as the artist`s name in the `Artists` table or the user`s name in the `Users` table to speed up search operations.
+Indexes created to index:
+* Podcasts by type
+* Podcasts by publisher
+* Songs by genre
+* Albums by release year
+* Playlists by user_id
+* Podcast Episodes by release_year
+* Playlist Songs by playlist_id
 
 ## Limitations
 
