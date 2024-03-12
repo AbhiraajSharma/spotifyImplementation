@@ -152,8 +152,6 @@ The database includes the following entities:
 ![image](https://github.com/AbhiraajSharma/spotifyImplementation/assets/115367305/5f4d8029-28de-4ae3-a58f-2022c53615e1)
 
 
-![ER Diagram](path/to/er_diagram.png)
-
 ## Optimizations
 
 Indexes may be created on commonly queried columns such as the artist`s name in the `Artists` table or the user`s name in the `Users` table to speed up search operations.
