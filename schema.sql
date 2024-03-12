@@ -251,6 +251,7 @@ CREATE INDEX IF NOT EXISTS "idx_albums_release_year" ON "Albums" ("release_year"
 CREATE INDEX IF NOT EXISTS "idx_playlists_user_id" ON "Playlists" ("user_id");
 CREATE INDEX IF NOT EXISTS "idx_podcasts_publisher" ON "Podcasts" ("publisher");
 CREATE INDEX IF NOT EXISTS "idx_episodes_release_year" ON "Episodes" ("release_year");
+CREATE INDEX IF NOT EXISTS "idx_playlist_songs_playlist" ON "PlaylistSongs" ("playlist_id");
 
 -- Views
 -- View - to list the top songs for each genre based on the number of times heard.
