@@ -149,7 +149,7 @@ The database includes the following entities:
 - Playlist Songs are a subset of Songs
 
 ### Diagram
-![image](https://github.com/AbhiraajSharma/spotifyImplementation/assets/115367305/5f4d8029-28de-4ae3-a58f-2022c53615e1)
+![ER](https://github.com/AbhiraajSharma/spotifyImplementation/assets/153735228/9ccf4149-040f-45ff-8feb-1b69bff25a65)
 
 
 ## Optimizations
